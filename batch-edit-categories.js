@@ -1,13 +1,13 @@
 const NODEBB_PATH = process.env['NODEBB_PATH'];
 
-const _ = require('lodash');
-const { program } = require('commander');
+const _ = require(path.resolve(NODEBB_PATH, 'node_modules', 'lodash'));
+const { program } = require(path.resolve(NODEBB_PATH, 'node_modules', 'commander'));
 const path = require('path');
 const fs = require('fs');
-const nconf = require('nconf');
-const db = require(path.resolve(NODEBB_PATH, 'src/database'));
-const prestart = require(path.resolve(NODEBB_PATH, 'src/prestart'));
-const categories = require(path.resolve(NODEBB_PATH, 'src/categories'));
+const nconf = require(path.resolve(NODEBB_PATH, 'node_modules', 'nconf'));
+const db = require(path.resolve(NODEBB_PATH, 'src', 'database'));
+const prestart = require(path.resolve(NODEBB_PATH, 'src', 'prestart'));
+const categories = require(path.resolve(NODEBB_PATH, 'src', 'categories'));
 
 async function main() {
   nconf.env({
