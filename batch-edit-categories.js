@@ -1,4 +1,4 @@
-const NODEBB_PATH = process.env['NODEBB_PATH'];
+const NODEBB_PATH = process.env['NODEBB_PATH'] || '/nodebb';
 
 const _ = require(path.resolve(NODEBB_PATH, 'node_modules', 'lodash'));
 const { program } = require(path.resolve(NODEBB_PATH, 'node_modules', 'commander'));
