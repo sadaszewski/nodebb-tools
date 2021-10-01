@@ -5,7 +5,7 @@ const { program } = require('commander');
 const path = require('path');
 const fs = require('fs');
 const nconf = require('nconf');
-const db = require(path.resolve(NODEBB_PATH, 'src/db'));
+const db = require(path.resolve(NODEBB_PATH, 'src/database'));
 const prestart = require(path.resolve(NODEBB_PATH, 'src/prestart'));
 const categories = require(path.resolve(NODEBB_PATH, 'src/categories'));
 
