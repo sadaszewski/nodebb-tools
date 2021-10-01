@@ -41,10 +41,10 @@ async function getAllCids() {
 }
 
 program
-	.name('./batch-edit-categories')
-	.description('Batch edit categories')
-	.option('--root-category', 'Root category', null)
-	.option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
+  .name('./batch-edit-categories')
+  .description('Batch edit categories')
+  .option('--root-category', 'Root category', null)
+  .option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
   .action(async () => {
     const opts = program.opts();
     const { rootCategory, propertiesFileName } = opts;
@@ -54,9 +54,9 @@ program
     if (rootCategory) {
       const rootCid = await getCid(rootCategory);
       cats.push(rootCid);
-      cats.extend(await categories.getChildrenCids(rootCid));
+      cats = cats.concat(await categories.getChildrenCids(rootCid));
     } else {
-      cats.extend(await getAllCids());
+      cats = cats.concat(await getAllCids());
     }
   
     console.log('cats: ' + cats);
