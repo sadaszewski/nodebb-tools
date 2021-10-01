@@ -18,54 +18,54 @@ async function main() {
   const myconsole = new winston.transports.Console();
   winston.add(myconsole);
 
-	const	configFile = path.resolve(NODEBB_PATH, nconf.get('config') || 'config.json');
+  const configFile = path.resolve(NODEBB_PATH, nconf.get('config') || 'config.json');
 
-	prestart.loadConfig(configFile);
+  prestart.loadConfig(configFile);
 
-	await db.init();
+  await db.init();
 
-	async function getCid(name) {
-	  let cids = await db.getSortedSetScan({
-	    key: 'categories:name',
-	    match: name
-	  });
-	  cids = cids.map(data => parseInt(data.split(':').pop(), 10));
-	  if (!cids.length)
-	    throw Error("Not found");
-	  return cids[0];
-	}
+  async function getCid(name) {
+    let cids = await db.getSortedSetScan({
+      key: 'categories:name',
+      match: name
+    });
+    cids = cids.map(data => parseInt(data.split(':').pop(), 10));
+    if (!cids.length)
+      throw Error("Not found");
+    return cids[0];
+  }
 
-	async function getAllCids() {
-	  let cids = await db.getSortedSetScan({
-	    key: 'categories:name'
-	  });
-	  cids = cids.map(data => parseInt(data.split(':').pop(), 10));
-	  return cids;
-	}
+  async function getAllCids() {
+    let cids = await db.getSortedSetScan({
+      key: 'categories:name'
+    });
+    cids = cids.map(data => parseInt(data.split(':').pop(), 10));
+    return cids;
+  }
 
-	program
-	  .name('./batch-edit-categories')
-	  .description('Batch edit categories')
-	  .option('--root-category', 'Root category', null)
-	  .option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
-	  .action(async () => {
-	    const opts = program.opts();
-	    const { rootCategory, propertiesFileName } = opts;
+  program
+    .name('./batch-edit-categories')
+    .description('Batch edit categories')
+    .option('--root-category', 'Root category', null)
+    .option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
+    .action(async () => {
+      const opts = program.opts();
+      const { rootCategory, propertiesFileName } = opts;
 
-	    let cats = [];
+      let cats = [];
 
-	    if (rootCategory) {
-	      const rootCid = await getCid(rootCategory);
-	      cats.push(rootCid);
-	      cats = cats.concat(await categories.getChildrenCids(rootCid));
-	    } else {
-	      cats = cats.concat(await getAllCids());
-	    }
+      if (rootCategory) {
+        const rootCid = await getCid(rootCategory);
+        cats.push(rootCid);
+        cats = cats.concat(await categories.getChildrenCids(rootCid));
+      } else {
+        cats = cats.concat(await getAllCids());
+      }
 
-	    console.log('cats: ' + cats);
-	  });
+      console.log('cats: ' + cats);
+    });
 
-	program.parse();
+  program.parse();
 }
 
 main().then(() => { console.log('ok'); }).catch(() => { console.log('catch'); });
