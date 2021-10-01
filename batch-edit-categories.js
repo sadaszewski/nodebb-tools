@@ -10,11 +10,13 @@ const prestart = require(path.resolve(NODEBB_PATH, 'src/prestart'));
 const categories = require(path.resolve(NODEBB_PATH, 'src/categories'));
 
 async function main() {
-	nconf.env({
-	separator: '__',
-	});
+  nconf.env({
+    separator: '__',
+  });
 
-	prestart.setupWinston();
+  prestart.setupWinston();
+  const myconsole = new winston.transports.Console();
+  winston.add(myconsole);
 
 	const	configFile = path.resolve(NODEBB_PATH, nconf.get('config') || 'config.json');
 
