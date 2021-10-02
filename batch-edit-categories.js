@@ -1,43 +1,42 @@
 const NODEBB_PATH = process.env['NODEBB_PATH'] || '/nodebb';
 
-const _ = require(path.resolve(NODEBB_PATH, 'node_modules', 'lodash'));
-const { program } = require(path.resolve(NODEBB_PATH, 'node_modules', 'commander'));
 const path = require('path');
-const fs = require('fs');
 const nconf = require(path.resolve(NODEBB_PATH, 'node_modules', 'nconf'));
-const db = require(path.resolve(NODEBB_PATH, 'src', 'database'));
 const prestart = require(path.resolve(NODEBB_PATH, 'src', 'prestart'));
-const categories = require(path.resolve(NODEBB_PATH, 'src', 'categories'));
+
+nconf.env({
+  separator: '__',
+});
+prestart.setupWinston();
+const configFile = path.resolve(NODEBB_PATH, nconf.get('config') || 'config.json');
+prestart.loadConfig(configFile);
 
 async function main() {
-  nconf.env({
-    separator: '__',
-  });
-
-  prestart.setupWinston();
-  const myconsole = new winston.transports.Console();
-  winston.add(myconsole);
-
-  const configFile = path.resolve(NODEBB_PATH, nconf.get('config') || 'config.json');
-
-  prestart.loadConfig(configFile);
+  const _ = require(path.resolve(NODEBB_PATH, 'node_modules', 'lodash'));
+  const { program } = require(path.resolve(NODEBB_PATH, 'node_modules', 'commander'));
+  const fs = require('fs');
+  const db = require(path.resolve(NODEBB_PATH, 'src', 'database'));
+  const categories = require(path.resolve(NODEBB_PATH, 'src', 'categories'));
 
   await db.init();
 
   async function getCid(name) {
     let cids = await db.getSortedSetScan({
       key: 'categories:name',
-      match: name
+      match: name.toLowerCase() + ':*'
     });
     cids = cids.map(data => parseInt(data.split(':').pop(), 10));
     if (!cids.length)
       throw Error("Not found");
+    if (cids.length > 1)
+      throw Error("Ambiguous");
     return cids[0];
   }
 
   async function getAllCids() {
     let cids = await db.getSortedSetScan({
-      key: 'categories:name'
+      key: 'categories:name',
+      match: '*'
     });
     cids = cids.map(data => parseInt(data.split(':').pop(), 10));
     return cids;
@@ -46,28 +45,47 @@ async function main() {
   program
     .name('./batch-edit-categories')
     .description('Batch edit categories')
-    .option('--root-category', 'Root category', null)
+    .option('--root-category <name>', 'Root category', null)
     .option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
     .action(async () => {
       const opts = program.opts();
       const { rootCategory, propertiesFileName } = opts;
 
-      let cats = [];
+      let cids = [];
+
+      console.log('All categories: ' + await db.getSortedSetScan({ key: 'categories:name', match: '*' }));
 
       if (rootCategory) {
+        console.log('rootCategory: ' + rootCategory);
         const rootCid = await getCid(rootCategory);
-        cats.push(rootCid);
-        cats = cats.concat(await categories.getChildrenCids(rootCid));
+        cids.push(rootCid);
+        cids = cids.concat(await categories.getChildrenCids(rootCid));
       } else {
-        cats = cats.concat(await getAllCids());
+        cids = cids.concat(await getAllCids());
       }
 
-      console.log('cats: ' + cats);
+      console.log('cids: ' + cids);
+
+      let props = fs.readFileSync(propertiesFileName);
+      props = JSON.parse(props.toString('utf8'));
+      console.log('props:', props);
+
+      cids = cids.map(id => `category:${id}`);
+      // console.log('cids:', cids);
+
+      console.log(await db.getObject(cids[0]));
+      
+      await db.setObjectBulk(cids, Array(cids.length).fill(props)); 
     });
 
-  program.parse();
+  await program.parseAsync();
 }
 
-main().then(() => { console.log('ok'); }).catch(() => { console.log('catch'); });
-
+main().then(() => {
+  console.log('ok');
+  process.exit(0);
+}).catch(e => {
+  console.log('catch: ' + e);
+  process.exit(1);
+});
 
