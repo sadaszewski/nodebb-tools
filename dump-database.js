@@ -31,7 +31,7 @@ async function main() {
       const allKeys = await db.scan({ match: '*' });
       console.log('allKeys: ' + allKeys.slice(0, 10) + ' ...');
     
-      let outFs = fs.openSync(outputFileName, 'w');
+      let outFd = fs.openSync(outputFileName, 'w');
     
       for (let k of allKeys) {
         const otype = await db.type(k);
@@ -57,7 +57,7 @@ async function main() {
             throw Error(`Unknown object type: ${type}`)
         }
         
-        obj = [ otype, obj ];
+        obj = [ k, otype, obj ];
         obj = JSON.stringify(obj);
         fs.writeSync(outFd, obj + '\n');
       }
