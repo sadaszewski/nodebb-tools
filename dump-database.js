@@ -31,7 +31,7 @@ async function main() {
       const allKeys = await db.scan({ match: '*' });
       console.log('allKeys: ' + allKeys.slice(0, 10) + ' ...');
     
-      let outStream = fs.createWriteStream(outputFileName, 'w');
+      let outFs = fs.openSync(outputFileName, 'w');
     
       for (let k of allKeys) {
         const otype = await db.type(k);
@@ -59,10 +59,10 @@ async function main() {
         
         obj = [ otype, obj ];
         obj = JSON.stringify(obj);
-        outStream.write(obj + '\n', 'utf8');
+        fs.writeSync(outFd, obj + '\n');
       }
 
-      outStream.close();
+      fs.closeSync(outFd);
     });
 
   await program.parseAsync();
