@@ -34,7 +34,7 @@ async function main() {
     
       for await (const line of inLines) {
         const obj = JSON.decode(line);
-        const { key, type, data } = obj;
+        const [ key, type, data ] = obj;
         switch (type) {
           case 'hash':
             await db.setObject(key, data);
