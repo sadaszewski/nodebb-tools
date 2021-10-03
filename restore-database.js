@@ -28,9 +28,10 @@ async function main() {
       const { inputFileName } = opts;
 
       const inStream = fs.createReadStream(inputFileName);
-      const inLines = readline.createInterface({ input: inStream });
     
       await db.emptydb();
+    
+      const inLines = readline.createInterface({ input: inStream });
     
       for await (const line of inLines) {
         const obj = JSON.decode(line);
