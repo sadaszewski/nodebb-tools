@@ -54,7 +54,7 @@ async function main() {
             obj = await db.get(k);
             break;
           default:
-            throw Error(`Unknown object type: ${type}`)
+            throw Error(`Unknown object type: ${otype}`)
         }
         
         obj = [ k, otype, obj ];
