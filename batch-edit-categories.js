@@ -45,8 +45,8 @@ async function main() {
   program
     .name('./batch-edit-categories')
     .description('Batch edit categories')
-    .option('--root-category <name>', 'Root category', null)
-    .option('--properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
+    .option('-r, --root-category <name>', 'Root category', null)
+    .option('-p, --properties-file-name <filename>', 'JSON properties file name', 'category-properties.json')
     .action(async () => {
       const opts = program.opts();
       const { rootCategory, propertiesFileName } = opts;
