@@ -23,7 +23,7 @@ async function main() {
   program
     .name('./dump-database')
     .description('Dump database to a JSON file')
-    .option('--output-file-name <filename>', 'JSON output file name', null)
+    .option('-o, --output-file-name <filename>', 'JSON output file name', null)
     .action(async () => {
       const opts = program.opts();
       const { outputFileName } = opts;
