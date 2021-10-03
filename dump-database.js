@@ -44,7 +44,7 @@ async function main() {
             obj = await db.getSetMembers(k);
             break;
           case 'zset':
-            obj = await db.getSortedSetScan({ key: k, match: '*' });
+            obj = await db.getSortedSetScan({ key: k, match: '*', withScores: true });
             break;
           case 'list':
             const L = await db.listLength(k);
