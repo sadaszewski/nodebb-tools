@@ -33,7 +33,7 @@ async function main() {
         throw Error('Query string is required');
       }
     
-      const searchResult = await user.search({ searchBy, query });
+      const searchResult = await user.search({ searchBy, query, paginate: false });
       if (!searchResult.users) {
         throw Error("User not found");
       }
