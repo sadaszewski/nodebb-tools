@@ -32,20 +32,20 @@ async function main() {
       if (!query) {
         throw Error('Query string is required');
       }
-    
+
       console.log(`searchBy: ${searchBy}, query: ${query}`);
       const searchResult = await user.search({ searchBy, query, paginate: false });
       if (!searchResult.users) {
         throw Error("User not found");
       }
-    
+
       if (searchResult.users.length > 1) {
         throw Error("User search returned ambiguous results");
       }
-    
+
       console.log(`users[0]: ${searchResult.users[0]}`);
       const uid = searchResult.users[0].uid;
-    
+
       const schema = {
         properties: {
           password: {
@@ -53,7 +53,7 @@ async function main() {
           }
         }
       };
-    
+
       prompt.start();
       const { password } = await prompt.get(schema);
 
@@ -62,7 +62,7 @@ async function main() {
         password: hash,
         'password:shaWrapped': 1,
       };
-    
+
       await user.setUserFields(uid, data);
       await user.reset.updateExpiry(uid);
       await user.auth.resetLockout(uid);
