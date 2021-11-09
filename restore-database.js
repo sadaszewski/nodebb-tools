@@ -57,7 +57,9 @@ async function main() {
           default:
             throw Error(`Unsupported type: ${type}`);
         }
-        await db.pexpireAt(key, pexpireAt);
+        if (pexpireAt !== null) {
+          await db.pexpireAt(key, pexpireAt);
+        }
       }
 
       inLines.close();
