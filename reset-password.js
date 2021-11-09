@@ -33,7 +33,8 @@ async function main() {
         throw Error('Query string is required');
       }
     
-      const searchResult = await user.search({ searchBy, query });
+      console.log(`searchBy: ${searchBy}, query: ${query}`);
+      const searchResult = await user.search({ searchBy, query, paginate: false });
       if (!searchResult.users) {
         throw Error("User not found");
       }
@@ -42,6 +43,7 @@ async function main() {
         throw Error("User search returned ambiguous results");
       }
     
+      console.log(`users[0]: ${searchResult.users[0]}`);
       const uid = searchResult.users[0].uid;
     
       const schema = {
