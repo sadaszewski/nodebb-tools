@@ -28,14 +28,14 @@ async function main() {
       const { inputFileName } = opts;
 
       const inStream = fs.createReadStream(inputFileName);
-    
+
       await db.emptydb();
-    
+
       const inLines = readline.createInterface({ input: inStream });
-    
+
       for await (const line of inLines) {
         const obj = JSON.decode(line);
-        const [ key, type, data ] = obj;
+        const [ key, type, data, pexpireAt ] = obj;
         switch (type) {
           case 'hash':
             await db.setObject(key, data);
@@ -57,8 +57,9 @@ async function main() {
           default:
             throw Error(`Unsupported type: ${type}`);
         }
+        await db.pexpireAt(key, pexpireAt);
       }
-    
+
       inLines.close();
       inStream.close();
     });

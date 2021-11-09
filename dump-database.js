@@ -30,12 +30,16 @@ async function main() {
 
       const allKeys = await db.scan({ match: '*' });
       console.log('allKeys: ' + allKeys.slice(0, 10) + ' ...');
-    
+
       let outFd = fs.openSync(outputFileName, 'w');
-    
+
       for (let k of allKeys) {
         const otype = await db.type(k);
+        const pttl = await db.pttl(k);
+        const pexpireAt = ( pttl >= 0 ) ? ( Number(new Date()) + pttl ) : null;
+
         let obj;
+
         switch (otype) {
           case 'hash':
             obj = await db.getObject(k);
@@ -56,8 +60,8 @@ async function main() {
           default:
             throw Error(`Unknown object type: ${otype}`)
         }
-        
-        obj = [ k, otype, obj ];
+
+        obj = [ k, otype, obj, pexpireAt ];
         obj = JSON.stringify(obj);
         fs.writeSync(outFd, obj + '\n');
       }
